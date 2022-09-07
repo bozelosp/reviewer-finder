@@ -4,6 +4,7 @@ import time
 import pickle
 import random
 import logging
+from tqdm import tqdm
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S')
 log_template = "=== {:40} ===\n"
@@ -37,13 +38,12 @@ with open(f'data/article_id_to_emb_dict_{entities_size}.pkl', 'rb') as f:
     articles = pickle.load(f)
 
 article_str_id_list, vector_list = [], []
-for id, vector in articles.items():
+int_id = 0
+for id, vector in tqdm(articles.items()):
     article_str_id_list.append(id)
-    vector_list.append([float(x) for x in vector[0]])
-
-article_int_id_list = list(range(entities_size))
-
-articles_collection.insert([article_int_id_list, vector_list])
+    if int_id % 1000 == 0:
+        articles_collection.insert([[int_id], [[float(x) for x in vector[0]]]])
+    int_id += 1
 
 # Create vector index
 logging.info(log_template.format(f"Create vector index"))
