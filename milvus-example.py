@@ -1,3 +1,5 @@
+from typing import List
+from unittest import result
 from pymilvus import connections, CollectionSchema, FieldSchema, DataType, Collection, utility
 import time
 import pickle
@@ -14,7 +16,7 @@ if_field_name = "article_id"
 vector_field_name = "article_vector"
 consistency_level = "Strong"
 
-entities_size = 100000
+entities_size = 10000
 dims = 700
 
 
@@ -59,7 +61,7 @@ def drop_collection(name) -> None:
     utility.drop_collection(name)
 
 
-def list_collections() -> list:
+def list_collections() -> List:
     """ List all collections. """
     
     return utility.list_collections()
@@ -101,10 +103,39 @@ def load_collection(collection) -> None:
     collection.load()
 
 
-def divide_chunks(l, n):
-    # looping till length l
-    for i in range(0, len(l), n):
-        yield list(range(i, i+n)), l[i:i + n]
+def release_collection(collection) -> None:
+    """ Release collection. """
+    logging.info(log_template.format(f"Release collection {collection.name}"))
+    collection.release()
+
+
+def get_str_id(id_str_list, int_id) -> str:
+    return id_str_list[int_id]
+
+
+def search(collection, vector_field, query, top_k=10, consistency="Strong", params=None) -> None:
+    """ Search collection. """
+    if not params:
+        params = {
+            "metric_type": "IP",
+            "params": {"nprobe": 512}
+        }
+    logging.info(log_template.format(f"Search in collection {collection.name}"))
+    start_time = time.time()
+    results = collection.search(
+        data = query,
+        anns_field = vector_field,
+        limit=top_k,
+        param=params,
+        consistency = consistency
+        )
+    end_time = time.time()
+    logging.info(search_latency_log_template.format(end_time - start_time))
+    for i, result in enumerate(results):
+        logging.info(f"Top {top_k} results for query {i}:")
+        for j, hit in enumerate(result):
+            logging.info(f"Rank {j}: {hit}")
+
 
 def main():
     # connect to Milvus
@@ -119,15 +150,14 @@ def main():
     #show collections
     logging.info(log_template.format(f"Collections on server: {list_collections()}"))
 
-
     # open data
+    with open(f'data/article_id_list_{entities_size}.pkl', 'rb') as f:
+        id_str_list = pickle.load(f)
     with open(f'data/article_vector_list_{entities_size}.pkl', 'rb') as f:
         vector_list = pickle.load(f)
 
     #insert data
-    for ids, vectors in tqdm(divide_chunks(vector_list, 1000)):
-        insert_data(collection, ids, vectors)
-
+    insert_data(collection, list(range(entities_size)), [[random.random() for _ in range(dims)] for _ in range(entities_size)])
 
     # get entity num
     logging.info(log_template.format(f"Entity num: {get_entity_num(collection)}"))
@@ -142,6 +172,24 @@ def main():
 
     # load collection
     load_collection(collection)
+
+    # search
+    with open('data/query_embeddings_list.pkl', 'rb') as f:
+        query_vectors = pickle.load(f)
+    search_params = {
+        "metric_type": "IP",
+        "params": {"nprobe": 512}
+    }
+    search(collection, vector_field_name, query_vectors, 10, consistency_level, search_params)
+
+    #drop index
+    drop_index(collection)
+
+    # release collection
+    release_collection(collection)
+
+    # drop collection
+    drop_collection(collection_name)
 
     # disconnect from Milvus
     disconnect_from_milvus()

@@ -1,7 +1,9 @@
 import pickle
 from tqdm import tqdm
 
-size = 10000
+entities_size_1 = 10000
+
+entities_size_2 = 100000
 
 
 # with open(f'data/query_embeddings.pkl', 'rb') as f:
@@ -16,15 +18,27 @@ size = 10000
 #     pickle.dump(vectors, f)
 
 
-with open(f'data/article_id_to_emb_dict_{size}.pkl', 'rb') as f:
-    articles = pickle.load(f)
+with open(f'data/article_vector_search_results_{entities_size_1}.pkl', 'rb') as f:
+    articles1 = pickle.load(f)
 
-id_str_list, id_int_list, vector_list = [], [], []
-for id, vector in tqdm(articles.items()):
-    id_str_list.append(id)
-    vector_list.append([float(x) for x in vector[0]])
+with open(f'data/article_vector_search_results_{entities_size_2}.pkl', 'rb') as f:
+    articles2 = pickle.load(f)
 
-print(vector_list[0])
+
+for index in range(20):
+    count = 0
+    for result in articles1[index]:
+        if result[1] in [x[1] for x in articles2[index]]:
+            count += 1
+
+    print(f"Query number: {index}, similarity: {count} %")
+
+# id_str_list, id_int_list, vector_list = [], [], []
+# for id, vector in tqdm(articles.items()):
+#     id_str_list.append(id)
+#     vector_list.append([float(x) for x in vector[0]])
+
+# print(vector_list[0])
 
 # with open(f'data/article_id_list_{size}.pkl', 'wb') as f:
 #     pickle.dump(id_str_list, f)
