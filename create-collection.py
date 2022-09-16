@@ -9,14 +9,21 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, date
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_10k"
+collection_name = "articles_100k"
 if_field_name = "article_id"
 vector_field_name = "article_vector"
 consistency_level = "Strong"
 
-entities_size = 10000
+entities_size = 1000 * 1000
 dims = 700
-nlist = 10
+filename = "data/100k/article_vector_list_100000"
+batch_size = 10 * 1000
+
+index_params = {
+    "index_type": "IVF_SQ8",
+    "metric_type": "IP",
+    "params": {"nlist": 100}
+}
 
 
 def connect_to_milvus() -> None:
@@ -66,9 +73,10 @@ def list_collections() -> list:
     return utility.list_collections()
 
 
-def insert_data(collection, id_data, vector_data) -> None:
+def insert_data(collection, id_data, vector_data, log=False) -> None:
     """ Insert data into the given collection. """
-    logging.info(log_template.format(f"Insert data of size {len(id_data)} into collection {collection.name}"))
+    if log:
+        logging.info(log_template.format(f"Insert data of size {len(id_data)} into collection {collection.name}"))
     collection.insert([id_data, vector_data])
 
 
@@ -84,7 +92,7 @@ def create_index(collection, field_name, index_params=None) -> None:
         index_params = {
             "index_type": "IVF_SQ8",
             "metric_type": "IP",
-            "params": {"nlist": nlist}
+            "params": {"nlist": 1024}
         }
     logging.info(log_template.format(f"Create index for collection {collection.name}"))
     collection.create_index(field_name=field_name, index_params=index_params)
@@ -105,7 +113,7 @@ def load_collection(collection) -> None:
 def divide_chunks(l, n):
     # looping till length l
     for i in range(0, len(l), n):
-        yield list(range(i+1, i+n+1)), l[i: i+n]
+        yield list(range(i, i+n)), l[i: i+n]
 
 def main():
     # connect to Milvus
@@ -120,22 +128,28 @@ def main():
     #show collections
     logging.info(log_template.format(f"Collections on server: {list_collections()}"))
 
-
-    # open data
-    with open(f'data/article_vector_list_{entities_size}.pkl', 'rb') as f:
-        vector_list = pickle.load(f)
-
     # create index
-    index_params = {
-        "index_type": "IVF_SQ8",
-        "metric_type": "IP",
-        "params": {"nlist": 1024}
-    }
     create_index(collection, vector_field_name, index_params)
 
-    #insert data
-    for ids, vectors in tqdm(divide_chunks(vector_list, 1000)):
-        insert_data(collection, ids, vectors)
+    # open data
+    counter = 0
+
+    for counter in tqdm(range(round(entities_size / batch_size))):
+
+            with open(f'{filename}_part_{counter}.pkl', 'rb') as f:
+                vector_list = pickle.load(f)
+            
+            ids = list(range(counter * batch_size, (counter + 1) * batch_size))
+            insert_data(collection, ids, vector_list)
+
+    logging.info(log_template.format(f"Inserted {counter+1} batches"))
+            
+    # with open(f'data/article_vector_list_{entities_size}.pkl', 'rb') as f:
+    #            vector_list = pickle.load(f)
+
+    # # #insert data
+    # for ids, vectors in tqdm(divide_chunks(vector_list, 1000)):
+    #     insert_data(collection, ids, vectors)
 
     # get entity num
     logging.info(log_template.format(f"Entity num: {get_entity_num(collection)}"))

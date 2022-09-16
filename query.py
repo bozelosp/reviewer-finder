@@ -11,14 +11,19 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, date
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_10k"
+collection_name = "articles_100k"
 if_field_name = "article_id"
 vector_field_name = "article_vector"
 consistency_level = "Strong"
 
-entities_size = 10000
+entities_size = 100 * 1000
 dims = 700
 top_k = 100
+
+search_params = {
+    "metric_type": "IP",
+    "params": {"nprobe": 10}
+    }
 
 with open(f'data/article_id_list_{entities_size}.pkl', 'rb') as f:
     str_id_list = pickle.load(f)
@@ -26,10 +31,6 @@ with open(f'data/article_id_list_{entities_size}.pkl', 'rb') as f:
 with open('data/query_embeddings_list.pkl', 'rb') as f:
     query_vectors = pickle.load(f)
 
-search_params = {
-    "metric_type": "IP",
-    "params": {"nprobe": 512}
-    }
 
 
 def connect_to_milvus() -> None:
@@ -65,7 +66,7 @@ def search(collection, vector_field, query, top_k=100, consistency="Strong", par
     if not params:
         params = {
             "metric_type": "IP",
-            "params": {"nprobe": 512}
+            "params": {"nprobe": 5} # default value
         }
     logging.info(log_template.format(f"Search in collection {collection.name}"))
     start_time = time.time()
@@ -115,7 +116,6 @@ def main():
 
     with open(f'data/article_vector_search_results_{entities_size}.pkl', 'wb') as f:
         pickle.dump(results_dict, f)
-
 
     # disconnect from Milvus
     disconnect_from_milvus()
