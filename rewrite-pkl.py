@@ -1,8 +1,8 @@
 import pickle
 from tqdm import tqdm
 
-entities_size_1 = 10000
-entities_size_2 = 100000
+entities_size_1 = 100000
+entities_size_2 = 1000000
 
 with open(f'data/article_vector_search_results_{entities_size_1}.pkl', 'rb') as f:
     articles1 = pickle.load(f)
@@ -60,7 +60,10 @@ print(f"precision: {precision}")
 
 
 ###################### Reformat 1 million dicts #################
-# entities_size = 100000
+# entities_size = 1000000
+# folder = "1million"
+# batch_size = 10000
+
 # with open(f'data/article_id_to_emb_dict_{entities_size}.pkl', 'rb') as f:
 #     articles = pickle.load(f)
 
@@ -73,14 +76,15 @@ print(f"precision: {precision}")
 #     norm = sum([float(x)**2 for x in vector[0]])**0.5
 #     vector_list.append([float(x) / norm for x in vector[0]])
 #     counter +=1
-#     if counter % 10000 == 0:
-#         with open(f'data/100k/article_vector_list_{entities_size}_part_{i}.pkl', 'wb') as f:
+#     if counter % batch_size == 0:
+#         with open(f'data/{folder}/article_vector_list_{entities_size}_part_{i}.pkl', 'wb') as f:
 #             pickle.dump(vector_list, f)
 #         i += 1
 #         vector_list = []
-        
-# with open(f'data/100k/article_vector_list_{entities_size}_part_{i}.pkl', 'wb') as f:
-#             pickle.dump(vector_list, f)
+
+# if vector_list:
+#     with open(f'data/{folder}/article_vector_list_{entities_size}_part_{i}.pkl', 'wb') as f:
+#         pickle.dump(vector_list, f)
 
 # with open(f'data/article_id_list_{entities_size}.pkl', 'wb') as f:
 #     pickle.dump(id_str_list, f)

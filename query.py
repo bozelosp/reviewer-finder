@@ -11,12 +11,12 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, date
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_100k"
+collection_name = "articles_1mil"
 if_field_name = "article_id"
 vector_field_name = "article_vector"
 consistency_level = "Strong"
 
-entities_size = 100 * 1000
+entities_size = 1000 * 1000
 dims = 700
 top_k = 100
 

@@ -9,20 +9,20 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, date
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_100k"
+collection_name = "articles_1mil"
 if_field_name = "article_id"
 vector_field_name = "article_vector"
 consistency_level = "Strong"
 
 entities_size = 1000 * 1000
 dims = 700
-filename = "data/100k/article_vector_list_100000"
+filename = "data/1million/article_vector_list_1000000"
 batch_size = 10 * 1000
 
 index_params = {
     "index_type": "IVF_SQ8",
     "metric_type": "IP",
-    "params": {"nlist": 100}
+    "params": {"nlist": 1000}
 }
 
 
