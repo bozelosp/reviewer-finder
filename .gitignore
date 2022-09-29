@@ -1,1 +1,6 @@
-data/
+python/data/
+terrafom/.terraform/
+terrafom/init.bat
+terrafom/terraform.tfstate
+terrafom/terraform.tfstate.backup
+terrafom/terraform.lock.hcl
