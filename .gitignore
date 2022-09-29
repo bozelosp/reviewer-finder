@@ -4,3 +4,4 @@ terraform/.terraform.lock.hcl
 terraform/init.bat
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
+ancible/*.pem
