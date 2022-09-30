@@ -109,7 +109,7 @@ resource "aws_route_table_association" "main" {
 # Create an instance
 resource "aws_instance" "main" {
   count         = var.servers_count
-  ami           = "ami-05ff5eaef6149df49"
+  ami           = "ami-0caef02b518350c8b"
   instance_type = "t2.micro"
   key_name      = var.aws_access_key
   subnet_id     = aws_subnet.main.id
