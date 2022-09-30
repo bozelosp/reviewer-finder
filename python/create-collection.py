@@ -9,20 +9,20 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, date
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_1mil"
+collection_name = "articles_10k"
 if_field_name = "article_id"
 vector_field_name = "article_vector"
 consistency_level = "Strong"
 
-entities_size = 1000 * 1000
+entities_size = 1000 * 10
 dims = 700
-filename = "data/1million/article_vector_list_1000000"
-batch_size = 10 * 1000
+filename = f"data/entries/article_vector_list_{entities_size}"
+batch_size = 1000 * 1
 
 index_params = {
     "index_type": "IVF_SQ8",
     "metric_type": "IP",
-    "params": {"nlist": 1000}
+    "params": {"nlist": 100}
 }
 
 
@@ -32,6 +32,14 @@ def connect_to_milvus() -> None:
     logging.info(log_template.format("start connecting to Milvus"))
     connections.connect(alias="default", host='localhost', port='19530')
     logging.info(log_template.format(str(connections.list_connections())))
+
+
+def connect_to_milvus_remote(host, port) -> None:
+    """ Connect to Milvus server """
+    logging.info(log_template.format("start connecting to Milvus"))
+    connections.connect(alias=f"default", host=host, port=port)
+    logging.info(log_template.format(str(connections.list_connections())))
+
 
 
 def disconnect_from_milvus() -> None:

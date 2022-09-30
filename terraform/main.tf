@@ -35,6 +35,14 @@ resource "aws_security_group" "main" {
     protocol         = "tcp"
     }
 
+    ingress {
+    description      = "to Milvus port from my ip"
+    cidr_blocks      = [var.my_ip]
+    from_port        = 19530
+    to_port          = 19530
+    protocol         = "tcp"
+    }
+
   egress {
     from_port        = 0 # 0 means all ports
     to_port          = 0 # 0 means all ports
@@ -107,7 +115,7 @@ resource "aws_route_table_association" "main" {
 
 
 # Create an instance
-resource "aws_instance" "main" {
+resource "aws_instance" "main_node" {
   count         = var.servers_count
   ami           = "ami-0caef02b518350c8b"
   instance_type = "t2.micro"
@@ -123,5 +131,19 @@ resource "aws_instance" "main" {
 
   tags = {
     Name = "Main Server ${count.index + 1}"
+  }
+}
+
+resource "aws_instance" "proxy_node" {
+  count         = 1
+  ami           = "ami-0caef02b518350c8b"
+  instance_type = "t2.micro"
+  key_name      = var.aws_access_key
+  subnet_id     = aws_subnet.main.id
+  availability_zone = "eu-central-1a"
+  vpc_security_group_ids = [aws_security_group.main.id]
+
+  tags = {
+    Name = "Proxy Server"
   }
 }
