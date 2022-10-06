@@ -1,31 +1,33 @@
 from pymilvus import connections, CollectionSchema, FieldSchema, DataType, Collection, utility
-import time
 import pickle
-import random
 import logging
 from tqdm import tqdm
+import json
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S')
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_100k"
-if_field_name = "article_id"
-vector_field_name = "article_vector"
-consistency_level = "Strong"
+with open('settings.json') as f:
+    settings = json.load(f)
 
-entities_size = 1000 * 100
-dims = 700
+collection_name = settings['collection_name']
+if_field_name = settings['if_field_name']
+vector_field_name = settings['vector_field_name']
+consistency_level = settings['consistency_level']
+
+entities_size = settings['entities_size']
+dims = settings['dims']
+batch_size = settings['batch_size']
 filename = f"data/entries/article_vector_list_{entities_size}"
-batch_size = 1000 * 10
 
-proxy_ip = "18.195.64.187"
-_port = "19530"
+proxy_ip = settings['proxy_ip']
+proxy_port = settings['proxy_port']
 
 index_params = {
     "index_type": "IVF_SQ8",
     "metric_type": "IP",
-    "params": {"nlist": 10}
+    "params": {"nlist": 100}
 }
 
 
@@ -128,7 +130,7 @@ def divide_chunks(l, n):
 
 def main():
     # connect to Milvus
-    connect_to_milvus_remote(proxy_ip, _port)
+    connect_to_milvus_remote(proxy_ip, proxy_port)
 
     if has_collection(collection_name):
         drop_collection(collection_name)
@@ -154,19 +156,9 @@ def main():
             insert_data(collection, ids, vector_list)
 
     logging.info(log_template.format(f"Inserted {counter+1} batches"))
-            
-    # with open(f'data/article_vector_list_{entities_size}.pkl', 'rb') as f:
-    #            vector_list = pickle.load(f)
-
-    # # #insert data
-    # for ids, vectors in tqdm(divide_chunks(vector_list, 1000)):
-    #     insert_data(collection, ids, vectors)
 
     # get entity num
     logging.info(log_template.format(f"Entity num: {get_entity_num(collection)}"))
-
-    # load collection
-    load_collection(collection)
 
     # disconnect from Milvus
     disconnect_from_milvus()

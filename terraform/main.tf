@@ -137,12 +137,16 @@ resource "aws_instance" "main_node" {
 resource "aws_instance" "proxy_node" {
   count         = 1
   ami           = "ami-0caef02b518350c8b"
-  instance_type = "t3.medium"
+  instance_type = "r5a.large"
   key_name      = var.aws_access_key
   subnet_id     = aws_subnet.main.id
   availability_zone = var.zone
   vpc_security_group_ids = [aws_security_group.main.id]
 
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = 50
+  }
   tags = {
     Name = "Proxy Server"
   }

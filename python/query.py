@@ -1,31 +1,34 @@
 from typing import List
-from unittest import result
 from pymilvus import connections, CollectionSchema, FieldSchema, DataType, Collection, utility
 import time
 import pickle
-import random
 import logging
-from tqdm import tqdm
+import json
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S')
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_100k"
-if_field_name = "article_id"
-vector_field_name = "article_vector"
-consistency_level = "Strong"
+with open('settings.json') as f:
+    settings = json.load(f)
 
-entities_size = 1000 * 100
-dims = 700
+collection_name = settings['collection_name']
+if_field_name = settings['if_field_name']
+vector_field_name = settings['vector_field_name']
+consistency_level = settings['consistency_level']
+
+entities_size = settings['entities_size']
+dims = settings['dims']
+batch_size = settings['batch_size']
+
+proxy_ip = settings['proxy_ip']
+proxy_port = settings['proxy_port']
+
 top_k = 100
-
-proxy_ip = "18.195.64.187"
-_port = "19530"
 
 search_params = {
     "metric_type": "IP",
-    "params": {"nprobe": 10}
+    "params": {"nprobe": 100}
     }
 
 with open(f'data/article_id_list_{entities_size}.pkl', 'rb') as f:
@@ -107,10 +110,9 @@ def process_results(results, str_id_list, top_k=100, log=False) -> None:
     return results_dict
 
 
-
 def main():
     # connect to Milvus
-    connect_to_milvus_remote(proxy_ip, _port)
+    connect_to_milvus_remote(proxy_ip, proxy_port)
 
     #show collections
     logging.info(log_template.format(f"Collections on server: {list_collections()}"))
@@ -128,6 +130,7 @@ def main():
 
     # disconnect from Milvus
     disconnect_from_milvus()
+
 
 if __name__ == "__main__":
     main()
