@@ -1,8 +1,8 @@
 import pickle
 from tqdm import tqdm
 
-# entities_size_1 = 100000
-# entities_size_2 = 1000000
+# entities_size_1 = 10000
+# entities_size_2 = 100000
 
 # with open(f'data/article_vector_search_results_{entities_size_1}.pkl', 'rb') as f:
 #     articles1 = pickle.load(f)
@@ -60,9 +60,9 @@ from tqdm import tqdm
 
 
 ###################### Reformat 1 million dicts #################
-# entities_size = 1000 * 10
+# entities_size = 1000 * 100
 # folder = "entries"
-# batch_size = 1000
+# batch_size = 10000
 
 # with open(f'data/article_id_to_emb_dict_{entities_size}.pkl', 'rb') as f:
 #     articles = pickle.load(f)

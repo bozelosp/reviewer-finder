@@ -11,14 +11,17 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, date
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_1mil"
+collection_name = "articles_100k"
 if_field_name = "article_id"
 vector_field_name = "article_vector"
 consistency_level = "Strong"
 
-entities_size = 1000 * 1000
+entities_size = 1000 * 100
 dims = 700
 top_k = 100
+
+proxy_ip = "18.195.64.187"
+_port = "19530"
 
 search_params = {
     "metric_type": "IP",
@@ -31,6 +34,12 @@ with open(f'data/article_id_list_{entities_size}.pkl', 'rb') as f:
 with open('data/query_embeddings_list.pkl', 'rb') as f:
     query_vectors = pickle.load(f)
 
+
+def connect_to_milvus_remote(host, port) -> None:
+    """ Connect to Milvus server """
+    logging.info(log_template.format("start connecting to Milvus"))
+    connections.connect(alias=f"default", host=host, port=port)
+    logging.info(log_template.format(str(connections.list_connections())))
 
 
 def connect_to_milvus() -> None:
@@ -101,7 +110,7 @@ def process_results(results, str_id_list, top_k=100, log=False) -> None:
 
 def main():
     # connect to Milvus
-    connect_to_milvus()
+    connect_to_milvus_remote(proxy_ip, _port)
 
     #show collections
     logging.info(log_template.format(f"Collections on server: {list_collections()}"))

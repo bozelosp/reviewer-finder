@@ -9,20 +9,23 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, date
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-collection_name = "articles_10k"
+collection_name = "articles_100k"
 if_field_name = "article_id"
 vector_field_name = "article_vector"
 consistency_level = "Strong"
 
-entities_size = 1000 * 10
+entities_size = 1000 * 100
 dims = 700
 filename = f"data/entries/article_vector_list_{entities_size}"
-batch_size = 1000 * 1
+batch_size = 1000 * 10
+
+proxy_ip = "18.195.64.187"
+_port = "19530"
 
 index_params = {
     "index_type": "IVF_SQ8",
     "metric_type": "IP",
-    "params": {"nlist": 100}
+    "params": {"nlist": 10}
 }
 
 
@@ -125,7 +128,7 @@ def divide_chunks(l, n):
 
 def main():
     # connect to Milvus
-    connect_to_milvus()
+    connect_to_milvus_remote(proxy_ip, _port)
 
     if has_collection(collection_name):
         drop_collection(collection_name)

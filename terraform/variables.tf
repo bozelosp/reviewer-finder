@@ -32,3 +32,9 @@ variable "rbd" {
     type = number
     default = 8
 }
+
+variable "zone"{
+    description = "Availability zone"
+    type = string
+    default = "eu-central-1a"
+}

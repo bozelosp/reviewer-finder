@@ -82,7 +82,7 @@ resource "aws_subnet" "main" {
   vpc_id = aws_vpc.main.id
   cidr_block = var.subnet_cidr
   map_public_ip_on_launch = true
-  availability_zone = "eu-central-1a"
+  availability_zone = var.zone
 
   tags = {
     Name = "Main Subnet"
@@ -118,10 +118,10 @@ resource "aws_route_table_association" "main" {
 resource "aws_instance" "main_node" {
   count         = var.servers_count
   ami           = "ami-0caef02b518350c8b"
-  instance_type = "t2.micro"
+  instance_type = "r5a.large"
   key_name      = var.aws_access_key
   subnet_id     = aws_subnet.main.id
-  availability_zone = "eu-central-1a"
+  availability_zone = var.zone
   vpc_security_group_ids = [aws_security_group.main.id]
 
   root_block_device {
@@ -137,10 +137,10 @@ resource "aws_instance" "main_node" {
 resource "aws_instance" "proxy_node" {
   count         = 1
   ami           = "ami-0caef02b518350c8b"
-  instance_type = "t2.micro"
+  instance_type = "t3.medium"
   key_name      = var.aws_access_key
   subnet_id     = aws_subnet.main.id
-  availability_zone = "eu-central-1a"
+  availability_zone = var.zone
   vpc_security_group_ids = [aws_security_group.main.id]
 
   tags = {

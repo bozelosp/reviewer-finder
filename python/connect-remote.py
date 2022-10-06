@@ -7,7 +7,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, date
 log_template = "=== {:40} ===\n"
 search_latency_log_template = "search latency = {:.4f}s"
 
-proxy_ip = "54.93.76.140"
+proxy_ip = "18.195.64.187"
 _port = "19530"
 
 def connect_to_milvus(host, port) -> None:
