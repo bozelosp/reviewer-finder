@@ -1,5 +1,5 @@
 {
-    "proxy_ip" : "3.71.175.103",
+    "proxy_ip" : "18.184.84.32",
     "proxy_port" : "19530",
     "collection_name" : "articles_2m",
     "if_field_name" : "article_id",
@@ -7,5 +7,6 @@
     "consistency_level" : "Strong",
     "entities_size" : 2000000,
     "dims" : 700,
-    "batch_size" : 20000
+    "batch_size" : 20000,
+    "nlist" : 1000
 }

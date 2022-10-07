@@ -28,7 +28,7 @@ top_k = 100
 
 search_params = {
     "metric_type": "IP",
-    "params": {"nprobe": 100}
+    "params": {"nprobe": 5}
     }
 
 with open(f'data/article_id_list_{entities_size}.pkl', 'rb') as f:

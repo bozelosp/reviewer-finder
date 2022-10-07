@@ -27,7 +27,7 @@ proxy_port = settings['proxy_port']
 index_params = {
     "index_type": "IVF_SQ8",
     "metric_type": "IP",
-    "params": {"nlist": 100}
+    "params": {"nlist": settings['nlist']}
 }
 
 
