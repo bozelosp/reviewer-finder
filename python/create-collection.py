@@ -136,11 +136,11 @@ def main():
     # create index
     create_index(collection, vector_field_name, index_params)
 
-    # open data
+    # open and data of 10 milllion vectors
     for k in range(10):
         number = k * 1000000
         filename = f"data/entries/article_vector_list_{number}"
-        for counter in tqdm(range(round(entities_size / batch_size))):
+        for counter in tqdm(range(round(1000000 / batch_size))):
                 try:
                     with open(f'{filename}_part_{counter}.pkl', 'rb') as f:
                         vector_data = pickle.load(f)

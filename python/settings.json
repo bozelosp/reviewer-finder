@@ -1,11 +1,11 @@
 {
-    "proxy_ip" : "3.71.91.108",
+    "proxy_ip" : "35.158.96.99",
     "proxy_port" : "19530",
     "collection_name" : "articles_10mil",
     "if_field_name" : "article_id",
     "vector_field_name" : "article_vector",
     "consistency_level" : "Strong",
-    "entities_size" : 1000000,
+    "entities_size" : 10000000,
     "dims" : 700,
     "batch_size" : 25000,
     "nlist" : 10000

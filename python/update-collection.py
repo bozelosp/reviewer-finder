@@ -12,12 +12,15 @@ search_latency_log_template = "search latency = {:.4f}s"
 with open('settings.json') as f:
     settings = json.load(f)
 
+filenames = ["data/entries/article_vector_list_9000000_part_11.pkl",
+                "data/entries/article_vector_list_6000000_part_14.pkl",
+                "data/entries/article_vector_list_3000000_part_34.pkl",]
+
 collection_name = settings['collection_name']
 id_field_name = settings['if_field_name']
 vector_field_name = settings['vector_field_name']
 consistency_level = settings['consistency_level']
 
-entities_size = settings['entities_size']
 dims = settings['dims']
 batch_size = settings['batch_size']
 
@@ -78,9 +81,6 @@ def main():
     collection = Collection(name=collection_name, consistency_level=consistency_level)
 
     # open data
-    filenames = ["data/entries/article_vector_list_9000000_part_11.pkl",
-                 "data/entries/article_vector_list_6000000_part_14.pkl",
-                 "data/entries/article_vector_list_3000000_part_34.pkl",]
     for filename in filenames:
         with open(filename, 'rb') as f:
             vector_data = pickle.load(f)

@@ -1,4 +1,4 @@
-- name: My first play
+- name: Ping instances
   hosts: dockernodes
   tasks:
    - name: Ping my hosts

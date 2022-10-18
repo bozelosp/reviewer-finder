@@ -3,7 +3,7 @@ variable "aws_access_key" {
   type = string
 }
 
-variable "servers_count" {
+variable "main_nodes_count" {
   description = "Number of servers to create"
   type = number
 }
@@ -20,6 +20,12 @@ variable "subnet_cidr" {
   default = "10.0.0.0/24"
 }
 
+variable "zone"{
+    description = "Availability zone"
+    type = string
+    default = "eu-central-1a"
+}
+
 variable "my_ip" {
   description = "My IP address"
   type = string
@@ -27,14 +33,30 @@ variable "my_ip" {
   
 }
 
-variable "rbd" {
-    description = "Root block device volume size"
+variable "main_node_rbd" {
+    description = "Root block device volume size for main nodes"
     type = number
     default = 8
 }
 
-variable "zone"{
-    description = "Availability zone"
-    type = string
-    default = "eu-central-1a"
+variable "proxy_node_rbd" {
+    description = "Root block device volume size for proxy node"
+    type = number
+    default = 200
 }
+
+variable "main_node_instance_type"{
+    description = "Instance type for main nodes"
+    type = string
+    default = "r5a.large"
+}
+
+variable "proxy_node_instance_type"{
+    description = "Instance type for proxy node"
+    type = string
+    default = "r5a.large"
+}
+
+
+
+

@@ -113,13 +113,13 @@ resource "aws_route_table_association" "main" {
   route_table_id = aws_route_table.main.id
 }
 
-############# Distributed Cluster
+############# Distributed Cluster ###############
 
 # Create an instance
 resource "aws_instance" "main_node" {
-  count         = var.servers_count
+  count         = var.main_nodes_count
   ami           = "ami-0caef02b518350c8b"
-  instance_type = "r5a.large"
+  instance_type = var.main_node_instance_type
   key_name      = var.aws_access_key
   subnet_id     = aws_subnet.main.id
   availability_zone = var.zone
@@ -127,7 +127,7 @@ resource "aws_instance" "main_node" {
 
   root_block_device {
     volume_type = "gp2"
-    volume_size = var.rbd
+    volume_size = var.main_node_rbd
   }
 
   tags = {
@@ -138,7 +138,7 @@ resource "aws_instance" "main_node" {
 resource "aws_instance" "proxy_node" {
   count         = 1
   ami           = "ami-0caef02b518350c8b"
-  instance_type = "r5a.large"
+  instance_type = var.proxy_node_instance_type
   key_name      = var.aws_access_key
   subnet_id     = aws_subnet.main.id
   availability_zone = var.zone
@@ -146,29 +146,9 @@ resource "aws_instance" "proxy_node" {
 
   root_block_device {
     volume_type = "gp2"
-    volume_size = 200
+    volume_size = var.proxy_node_rbd
   }
   tags = {
     Name = "Proxy Server"
   }
 }
-
-############## One Instance cluster
-# resource "aws_instance" "main_node" {
-#   count         = 1
-#   ami           = "ami-0caef02b518350c8b"
-#   instance_type = "r5a.xlarge"
-#   key_name      = var.aws_access_key
-#   subnet_id     = aws_subnet.main.id
-#   availability_zone = var.zone
-#   vpc_security_group_ids = [aws_security_group.main.id]
-
-#   root_block_device {
-#     volume_type = "gp2"
-#     volume_size = 50
-#   }
-
-#   tags = {
-#     Name = "Main Server"
-#   }
-# }

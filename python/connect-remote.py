@@ -10,9 +10,6 @@ search_latency_log_template = "search latency = {:.4f}s"
 with open('settings.json') as f:
     settings = json.load(f)
 
-collection_name = settings['collection_name']
-consistency_level = settings['consistency_level']
-
 proxy_ip = settings['proxy_ip']
 proxy_port = settings['proxy_port']
 
@@ -32,11 +29,6 @@ def list_collections() -> list:
     """ List all collections. """
     
     return utility.list_collections()
-
-def load_collection(collection) -> None:
-    """ Load collection. """
-    logging.info(log_template.format(f"Load collection {collection.name}"))
-    collection.load()
 
 
 def main():
