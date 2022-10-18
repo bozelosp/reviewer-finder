@@ -48,8 +48,8 @@ def main():
     
     # load collection
     collection = Collection(name=collection_name, consistency_level=consistency_level)
-    load_collection(collection)
-    # collection.release()
+    # load_collection(collection)
+    collection.release()
     
     # disconnect from Milvus
     disconnect_from_milvus()

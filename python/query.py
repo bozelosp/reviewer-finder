@@ -31,9 +31,6 @@ search_params = {
     "params": {"nprobe": 5}
     }
 
-with open(f'data/article_id_list_{entities_size}.pkl', 'rb') as f:
-    str_id_list = pickle.load(f)
-
 with open('data/query_embeddings_list.pkl', 'rb') as f:
     query_vectors = pickle.load(f)
 
@@ -69,10 +66,6 @@ def list_collections() -> List:
     return utility.list_collections()
 
 
-def get_str_id(str_id_list, int_id) -> str:
-    return str_id_list[int_id]
-
-
 def search(collection, vector_field, query, top_k=100, consistency="Strong", params=None) -> None:
     """ Search collection. """
     if not params:
@@ -94,7 +87,7 @@ def search(collection, vector_field, query, top_k=100, consistency="Strong", par
     return results
 
 
-def process_results(results, str_id_list, top_k=100, log=False) -> None:
+def process_results(results, top_k=100, log=False) -> None:
     """ Process search results. """
     results_dict = []
     for i, result in enumerate(results):
@@ -103,7 +96,7 @@ def process_results(results, str_id_list, top_k=100, log=False) -> None:
             logging.info(f"Top {top_k} results for query {i}:")
         for j, hit in enumerate(result):
             distance = hit.distance
-            id = get_str_id(str_id_list, hit.id)
+            id = hit.id
             results_dict[i].append([distance, id])
             if log:
                 logging.info(f"Rank {j}: {distance}, {id}")
@@ -123,7 +116,7 @@ def main():
     results = search(collection, vector_field_name, query_vectors, top_k, consistency_level, search_params)
 
     #process results
-    results_dict = process_results(results, str_id_list, top_k)
+    results_dict = process_results(results, top_k)
 
     with open(f'data/article_vector_search_results_{entities_size}.pkl', 'wb') as f:
         pickle.dump(results_dict, f)

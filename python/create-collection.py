@@ -1,3 +1,4 @@
+from random import random
 from pymilvus import connections, CollectionSchema, FieldSchema, DataType, Collection, utility
 import pickle
 import logging
@@ -12,14 +13,13 @@ with open('settings.json') as f:
     settings = json.load(f)
 
 collection_name = settings['collection_name']
-if_field_name = settings['if_field_name']
+id_field_name = settings['if_field_name']
 vector_field_name = settings['vector_field_name']
 consistency_level = settings['consistency_level']
 
 entities_size = settings['entities_size']
 dims = settings['dims']
 batch_size = settings['batch_size']
-filename = f"data/entries/article_vector_list_{entities_size}"
 
 proxy_ip = settings['proxy_ip']
 proxy_port = settings['proxy_port']
@@ -46,7 +46,6 @@ def connect_to_milvus_remote(host, port) -> None:
     logging.info(log_template.format(str(connections.list_connections())))
 
 
-
 def disconnect_from_milvus() -> None:
     """ Disconnect from Milvus server. """
     logging.info(log_template.format("Disconnecting from Milvus"))
@@ -58,7 +57,7 @@ def create_collection(name, id_field, vector_field, dim=700, consistency_level="
     
     logging.info(log_template.format(f"Create collection {name}"))
 
-    id = FieldSchema(name=id_field, dtype=DataType.INT64, is_primary=True)
+    id = FieldSchema(name=id_field, dtype=DataType.VARCHAR, max_length=50, description="id", is_primary=True)
     vector = FieldSchema(name=vector_field, dtype=DataType.FLOAT_VECTOR, dim=dim)
 
     schema = CollectionSchema(fields=[id, vector])
@@ -117,17 +116,6 @@ def drop_index(collection) -> None:
     collection.drop_index()
 
 
-def load_collection(collection) -> None:
-    """ Load collection. """
-    logging.info(log_template.format(f"Load collection {collection.name}"))
-    collection.load()
-
-
-def divide_chunks(l, n):
-    # looping till length l
-    for i in range(0, len(l), n):
-        yield list(range(i, i+n)), l[i: i+n]
-
 def main():
     # connect to Milvus
     connect_to_milvus_remote(proxy_ip, proxy_port)
@@ -136,7 +124,11 @@ def main():
         drop_collection(collection_name)
 
     # create collection
-    collection = create_collection(collection_name, if_field_name, vector_field_name, dims, consistency_level=consistency_level)
+    collection = create_collection(collection_name,
+     id_field_name,
+     vector_field_name,
+     dims,
+     consistency_level=consistency_level)
 
     #show collections
     logging.info(log_template.format(f"Collections on server: {list_collections()}"))
@@ -145,17 +137,19 @@ def main():
     create_index(collection, vector_field_name, index_params)
 
     # open data
-    counter = 0
+    for k in range(10):
+        number = k * 1000000
+        filename = f"data/entries/article_vector_list_{number}"
+        for counter in tqdm(range(round(entities_size / batch_size))):
+                try:
+                    with open(f'{filename}_part_{counter}.pkl', 'rb') as f:
+                        vector_data = pickle.load(f)
+                    
+                    insert_data(collection, vector_data[0], vector_data[1])
+                except:
+                    logging.info(log_template.format(f"Errored readind file {filename}_part_{counter}.pkl"))
 
-    for counter in tqdm(range(round(entities_size / batch_size))):
-
-            with open(f'{filename}_part_{counter}.pkl', 'rb') as f:
-                vector_list = pickle.load(f)
-            
-            ids = list(range(counter * batch_size, (counter + 1) * batch_size))
-            insert_data(collection, ids, vector_list)
-
-    logging.info(log_template.format(f"Inserted {counter+1} batches"))
+        logging.info(log_template.format(f"Inserted {counter+1} batches"))
 
     # get entity num
     logging.info(log_template.format(f"Entity num: {get_entity_num(collection)}"))
