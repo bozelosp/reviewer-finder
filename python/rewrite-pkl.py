@@ -26,7 +26,7 @@ def reformat_into_chunks():
     folder = "entries"
     batch_size = 25000
 
-    for index in [3, 6, 9]: #range(9,10):
+    for index in range(10):
         number = index * 1000000
         with open(f'data/article_id_to_emb_dict_{number}.pkl', 'rb') as f:
             articles = pickle.load(f)
